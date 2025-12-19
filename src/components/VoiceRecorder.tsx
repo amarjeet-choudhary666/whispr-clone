@@ -17,11 +17,20 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         className={`record-button ${isRecording ? 'recording' : ''}`}
         onMouseDown={onStartRecording}
         onMouseUp={onStopRecording}
-        onMouseLeave={onStopRecording} // Stop if mouse leaves button
+        onMouseLeave={onStopRecording}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          onStartRecording();
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          onStopRecording();
+        }}
       >
-        {isRecording ? '🎤 Recording...' : '🎤 Hold to Record'}
+        <span className="icon">{isRecording ? '🎤' : '🎙️'}</span>
+        <span className="text">{isRecording ? 'Recording' : 'Tap to Record'}</span>
       </button>
-      <p>Push and hold the button to start recording</p>
+      <p>{isRecording ? 'Release to stop recording' : 'Press and hold to record your voice'}</p>
     </div>
   );
 };

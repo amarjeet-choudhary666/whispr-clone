@@ -1,8 +1,7 @@
 import { useState, useRef } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import VoiceRecorder from "./components/VoiceRecorder";
 import TranscriptionDisplay from "./components/TranscriptionDisplay";
-import RecordingControls from "./components/RecordingControls";
 import "./App.css";
 
 function App() {
@@ -26,10 +25,10 @@ function App() {
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         const arrayBuffer = await audioBlob.arrayBuffer();
-        const audioData = Array.from(new Uint8Array(arrayBuffer));
+        const audioData = new Uint8Array(arrayBuffer);
 
         setIsTranscribing(true);
-        if (typeof invoke !== 'function') {
+        if (!isTauri()) {
           setTranscription("Tauri invoke not available. Please run the app with Tauri.");
           setIsTranscribing(false);
           return;
@@ -63,24 +62,27 @@ function App() {
   };
 
   return (
-    <main className="container">
-      <h1>Voice-to-Text App</h1>
-      <TranscriptionDisplay
-        transcription={transcription}
-        isTranscribing={isTranscribing}
-      />
-      <VoiceRecorder
-        isRecording={isRecording}
-        onStartRecording={handleStartRecording}
-        onStopRecording={handleStopRecording}
-      />
-      <RecordingControls
-        isRecording={isRecording}
-        onStart={handleStartRecording}
-        onStop={handleStopRecording}
-      />
-    </main>
+    <div className="app-wrapper">
+      <main className="container">
+        <div className="header">
+          <h1 className="app-title">Whispr</h1>
+          <p className="app-subtitle">Voice to text, beautifully simple</p>
+        </div>
+        
+        <TranscriptionDisplay
+          transcription={transcription}
+          isTranscribing={isTranscribing}
+        />
+        
+        <VoiceRecorder
+          isRecording={isRecording}
+          onStartRecording={handleStartRecording}
+          onStopRecording={handleStopRecording}
+        />
+      </main>
+    </div>
   );
 }
 
 export default App;
+
